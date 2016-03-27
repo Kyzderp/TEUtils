@@ -30,6 +30,8 @@ import com.mumfrey.liteloader.core.LiteLoader;
 public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGameListener, Tickable
 {
 	private static KeyBinding configKeyBinding;
+	
+	private boolean isTE;
 
 	private CommandHandler cmdHandler;
 	private TEUtils util;
@@ -41,12 +43,13 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 	public String getName() { return "TE Utils"; }
 
 	@Override
-	public String getVersion() { return "1.0.0"; }
+	public String getVersion() { return "1.1.0"; }
 
 	@Override
 	public void init(File configPath) 
 	{
 		this.util = new TEUtils(this, new ScriptHolder());
+		this.isTE = false;
 		this.cmdHandler = new CommandHandler(this, this.util);
 		this.scheduler = Executors.newScheduledThreadPool(1);
 		this.schedulerActive = false;
@@ -74,31 +77,36 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 	public void onChat(IChatComponent chat, String message) 
 	{
 		message = message.replaceAll("\u00A7.", "");
-		if (message.equals("[!] Success [!] Welcome back, your login session has been resumed.")
-				|| message.equals("                  Welcome Back To TeamExtreme. "))
+		if (this.isTE
+				&& (message.equals("[!] Success [!] Welcome back, your login session has been resumed.")
+				|| message.equals("                  Welcome Back To TeamExtreme. ")))
 		{
 			// Schedule to run this half a sec later, or it may be inaccurate.
 			if (this.schedulerActive)
-				this.scheduler.schedule(new GetServerTask(this, this.util), 1000, TimeUnit.MILLISECONDS);
+				this.scheduler.schedule(new GetServerTask(this, this.util, 2), 1000, TimeUnit.MILLISECONDS);
 		}
 	}
 
 	/**
-	 * Upon first login, because it needs a longer delay.
+	 * Upon first login, because it needs a longer delay. Client may still be loading
 	 */
 	@Override
-	public void onJoinGame(INetHandler netHandler,
-			S01PacketJoinGame joinGamePacket, ServerData serverData,
-			RealmsServer realmsServer) {
+	public void onJoinGame(INetHandler netHandler, S01PacketJoinGame joinGamePacket, 
+			ServerData serverData, RealmsServer realmsServer) 
+	{
+		this.isTE = false;
+//		System.out.println("Checking server MOTD...");
+		if (serverData.serverMOTD.split("\n")[0].matches("§8\\[§aBitches§8\\]§7=§8\\[§aBe§8\\]§7=§8\\[§aCrazy.*"))
+			this.isTE = true;
+		
 		this.schedulerActive = false;
-		this.scheduler.schedule(new GetServerTask(this, this.util), 3000, TimeUnit.MILLISECONDS);
-		// TODO: if not loaded, run again?
+		if (this.isTE)
+			this.scheduler.schedule(new GetServerTask(this, this.util, 10), 1000, TimeUnit.MILLISECONDS);
 	}
 
 
 	@Override
-	public void onTick(Minecraft minecraft, float partialTicks, boolean inGame,
-			boolean clock) 
+	public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) 
 	{
 		if (inGame && minecraft.currentScreen == null && this.configKeyBinding.isPressed())
 		{

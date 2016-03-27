@@ -18,9 +18,12 @@ public class ScriptHolder
 {
 	public Map<String, LoginScript> scripts;
 	
+	private final String username = Minecraft.getMinecraft().getSession().getUsername();
+	
 	private final File dirs = new File(Minecraft.getMinecraft().mcDataDir, "liteconfig" + File.separator 
-			+ "config.1.8" + File.separator + "TEUtils");
-	private final File file = new File(dirs.getPath() + File.separator + "scripts.json");
+			+ "config.1.8" + File.separator + "TEUtils" + File.separator + "loginscripts");
+	private final File file = new File(dirs.getPath() + File.separator 
+			+ this.username + ".json");
 	
 	public ScriptHolder()
 	{
@@ -47,10 +50,12 @@ public class ScriptHolder
 					this.scripts.put(s.getServername(), s);
 				}
 				in.close();
+				LiteLoaderLogger.info("[TE Utils] Loaded login scripts for " + this.username + ".");
 			}
 			catch (Exception e)
 			{
-				LiteLoaderLogger.warning("Cannot read from TE Utils scripts file!");
+				LiteLoaderLogger.warning("Cannot read from " + this.username
+						+ "'s TE Utils scripts file!");
 			}
 		}
 		else
@@ -60,8 +65,9 @@ public class ScriptHolder
 				for (String server: servers)
 					this.scripts.put(server, new LoginScript(server));
 				this.file.createNewFile();
+				LiteLoaderLogger.info("[TE Utils] Created new login scripts file for " + this.username + ".");
 			} catch (IOException e) {
-				LiteLoaderLogger.warning("Cannot create new TE Utils scripts file!");
+				LiteLoaderLogger.warning("Cannot create new TE Utils scripts file for " + this.username + "!");
 			}
 		}
 	}
@@ -77,6 +83,7 @@ public class ScriptHolder
 			FileWriter out = new FileWriter(this.file);
 			out.write(json);
 			out.close();
+			LiteLoaderLogger.info("[TE Utils] Saved login scripts file for " + this.username + ".");
 		} catch (IOException e) {
 			 LiteLoaderLogger.warning("Failed saving scripts");
 		}

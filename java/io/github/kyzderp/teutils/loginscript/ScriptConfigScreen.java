@@ -2,6 +2,7 @@ package io.github.kyzderp.teutils.loginscript;
 
 import java.io.IOException;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -75,7 +76,9 @@ public class ScriptConfigScreen extends GuiScreen
 			this.scriptField.drawTextBox();
 		
 		this.drawCenteredString(this.fontRendererObj, "TE Utils - Login Script Configuration", 
-				this.width/2, this.height/2 - 60, 0x99FF99);
+				this.width/2, this.height/2 - 75, 0x99FF99);
+		this.drawCenteredString(this.fontRendererObj, "Player: " + Minecraft.getMinecraft().getSession().getUsername(), 
+				this.width/2, this.height/2 - 60, 0xFFFFFF);
 		this.fontRendererObj.drawStringWithShadow("Delay between messages:", 15, this.height/2 - 7, 0xFFFFFF);
 		this.fontRendererObj.drawStringWithShadow("milliseconds", 195, this.height/2 - 7, 0xFFFFFF);
 		
