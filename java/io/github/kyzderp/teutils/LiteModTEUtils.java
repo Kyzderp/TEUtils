@@ -82,12 +82,11 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 				|| message.equals("                  Welcome Back To TeamExtreme. ")))
 		{
 			// Schedule to run this half a sec later, or it may be inaccurate.
-			if (this.schedulerActive)
-			{
-//				this.scheduler.shutdownNow();
-				this.scheduler.schedule(new GetServerTask(this, this.util, 2), 1000, TimeUnit.MILLISECONDS);
-			}
-		}
+//			if (this.schedulerActive)
+//			{
+				this.scheduler.schedule(new GetServerTask(this, this.util, 10), 1000, TimeUnit.MILLISECONDS);
+//			}
+		} // TODO: /teu reload
 	}
 
 	/**
@@ -102,9 +101,9 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 		if (serverData.serverMOTD.split("\n")[0].matches("§8\\[§aBitches§8\\]§7=§8\\[§aBe§8\\]§7=§8\\[§aCrazy.*"))
 			this.isTE = true;
 		
-		this.schedulerActive = false;
-		if (this.isTE)
-			this.scheduler.schedule(new GetServerTask(this, this.util, 10), 1000, TimeUnit.MILLISECONDS);
+//		this.schedulerActive = false;
+//		if (this.isTE)
+//			this.scheduler.schedule(new GetServerTask(this, this.util, 10), 1000, TimeUnit.MILLISECONDS);
 	}
 
 
