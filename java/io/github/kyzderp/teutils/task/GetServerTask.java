@@ -25,6 +25,12 @@ public class GetServerTask implements Runnable
 	{
 		String servername = this.util.getServer();
 		LiteLoaderLogger.info("[TE Utils] Current server: " + servername);
+		
+		if (servername.equals("login"))
+		{
+			this.mod.setSchedulerActive(true);
+			return;
+		}
 
 		if (servername.equals("") || !this.util.getScriptHolder().scripts.containsKey(servername))
 		{
@@ -36,6 +42,8 @@ public class GetServerTask implements Runnable
 				LiteModTEUtils.scheduler.schedule(new GetServerTask(this.mod, this.util, this.retries - 1)
 				, 1000, TimeUnit.MILLISECONDS);
 			}
+			else
+				this.mod.setSchedulerActive(true);
 			return;
 		}
 

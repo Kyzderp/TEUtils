@@ -83,7 +83,10 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 		{
 			// Schedule to run this half a sec later, or it may be inaccurate.
 			if (this.schedulerActive)
+			{
+//				this.scheduler.shutdownNow();
 				this.scheduler.schedule(new GetServerTask(this, this.util, 2), 1000, TimeUnit.MILLISECONDS);
+			}
 		}
 	}
 
