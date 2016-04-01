@@ -34,6 +34,19 @@ public class TEUtils
 	/////////////////// UTILS //////////////////////
 
 	/**
+	 * Converts world name to the server name
+	 * @param world
+	 * @return
+	 */
+	public String convertWorldToServer(String world)
+	{
+		world = world.toLowerCase();
+		if (world.equals("mecha"))
+			return "build4";
+		return world;
+	}
+	
+	/**
 	 * Get the server that the player is currently on, using the tablist
 	 * @return
 	 */
