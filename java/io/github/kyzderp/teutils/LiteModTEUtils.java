@@ -1,6 +1,7 @@
 package io.github.kyzderp.teutils;
 
 import io.github.kyzderp.teutils.loginscript.ScriptHolder;
+import io.github.kyzderp.teutils.task.RunScriptTask;
 import io.netty.buffer.Unpooled;
 
 import java.io.File;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
@@ -51,7 +53,7 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 	public String getName() { return "TE Utils"; }
 
 	@Override
-	public String getVersion() { return "1.1.1"; }
+	public String getVersion() { return "1.1.2"; }
 
 	@Override
 	public void init(File configPath) 
@@ -87,17 +89,23 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 	public void onChat(IChatComponent chat, String message) 
 	{
 		message = message.replaceAll("\u00A7.", "");
+//		LiteLoaderLogger.info("[TE Utils] Message: " + message);
+
 		if (this.isTE
 				&& (message.equals("[!] Success [!] Welcome back, your login session has been resumed.")
 				|| message.equals("                  Welcome Back To TeamExtreme. ")))
 		{
+			LiteLoaderLogger.info("[TE Utils] Requesting world information from server...");
+			
 			PacketBuffer outPacket = new PacketBuffer(Unpooled.copiedBuffer(new byte[0]));
 			ClientPluginChannels.sendMessage("world_info", outPacket, PluginChannels.ChannelPolicy.DISPATCH_ALWAYS);
+			
+			scheduler.schedule(new RunScriptTask(this.util), 1000, TimeUnit.MILLISECONDS);
 		} // TODO: /teu reload
 	}
 
 	/**
-	 * Upon first login, because it needs a longer delay. Client may still be loading
+	 * Upon first login, check if it's TE
 	 */
 	@Override
 	public void onJoinGame(INetHandler netHandler, S01PacketJoinGame joinGamePacket, 
@@ -106,8 +114,11 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 //		PacketBuffer outPacket = new PacketBuffer(Unpooled.copiedBuffer(new byte[0]));
 //		ClientPluginChannels.sendMessage("world_info", outPacket, PluginChannels.ChannelPolicy.DISPATCH_ALWAYS);
 		this.isTE = false;
-		if (serverData.serverMOTD.split("\n")[0].matches("§8\\[§aBitches§8\\]§7=§8\\[§aBe§8\\]§7=§8\\[§aCrazy.*"))
+		if (serverData.serverMOTD.replaceAll("\u00A7r", "").split("\n")[0].matches("§8\\[§aBitches§8\\]§7=§8\\[§aBe§8\\]§7=§8\\[§aCrazy.*"))
+		{
 			this.isTE = true;
+			LiteLoaderLogger.info("[TE Utils] Joined Team Extreme server, TE Utils will be active.");
+		}
 	}
 
 
@@ -149,7 +160,7 @@ public class LiteModTEUtils implements OutboundChatFilter, ChatListener, JoinGam
 			{ // We've got a new world!
 				this.util.setLastServer(this.util.getCurrentServer());
 				this.util.setCurrentServer(server);
-				LiteLoaderLogger.info("Current world is now \"" + server + "\" and last world is \""
+				LiteLoaderLogger.info("[TE Utils] Current world is now \"" + server + "\" and last world is \""
 						+ this.util.getLastServer() + "\"");
 				
 				this.util.runScript(server);
